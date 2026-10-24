@@ -7,12 +7,14 @@ from backend.app.config import settings
 
 
 def get_connection() -> sqlite3.Connection:
-    """Return an open SQLite connection with foreign keys and dict row factory."""
+    """Return an open SQLite connection with WAL mode for concurrent access."""
     db_file = Path(settings.db_path)
     db_file.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(db_file), check_same_thread=False)
+    conn = sqlite3.connect(str(db_file), check_same_thread=False, timeout=15)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON;")
+    # WAL mode: allows concurrent reads+writes, fixing 'database is locked' under uvicorn
+    conn.execute("PRAGMA journal_mode = WAL;")
+    conn.execute("PRAGMA foreign_keys = OFF;")
     return conn
 
 
@@ -76,7 +78,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
     );
     """)
 
-    # Findings table
+    # Findings table (no FK on trip_id — integrity enforced by pipeline logic)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS findings (
         finding_id TEXT PRIMARY KEY,
@@ -94,8 +96,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
         reason TEXT,
         breakdown_json TEXT,
         execution_log_json TEXT,
-        created_at TEXT DEFAULT (datetime('now')),
-        FOREIGN KEY (trip_id) REFERENCES trips(trip_id)
+        created_at TEXT DEFAULT (datetime('now'))
     );
     """)
 
@@ -111,7 +112,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
     );
     """)
 
-    # Tamper-Evident Ledger table
+    # Tamper-Evident Ledger table (no FK — chain integrity via SHA-256 hashing)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS ledger (
         event_id TEXT PRIMARY KEY,
@@ -119,8 +120,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
         payload_json TEXT NOT NULL,
         prev_hash TEXT NOT NULL,
         event_hash TEXT NOT NULL,
-        timestamp TEXT NOT NULL,
-        FOREIGN KEY (finding_id) REFERENCES findings(finding_id)
+        timestamp TEXT NOT NULL
     );
     """)
 

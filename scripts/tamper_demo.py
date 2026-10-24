@@ -14,8 +14,12 @@ from backend.app.ledger.chain import append_to_ledger, verify_chain, tamper_ledg
 
 def run_tamper_demo() -> None:
     print("=== TAMPER-EVIDENT LEDGER DEMONSTRATION ===")
+
     conn = get_connection()
     init_schema(conn)
+    # Clear any leftover demo blocks from previous runs so chain starts clean
+    conn.execute("DELETE FROM ledger WHERE finding_id IN ('FIND-DEMO-01', 'FIND-DEMO-02')")
+    conn.commit()
     conn.close()
 
     # Step 1: Append two valid blocks
@@ -30,19 +34,23 @@ def run_tamper_demo() -> None:
     # Step 3: Verify initial chain
     print("\n3. Verifying initial chain status...")
     v1 = verify_chain()
-    print(f"   Chain status: {v1['message']} (Valid: {v1['valid']})")
+    status_msg = v1.get("message") or v1.get("reason", "Unknown")
+    print(f"   Chain status: {status_msg} (Valid: {v1['valid']})")
 
     # Step 4: Deliberately tamper with Block 1 payload
-    print(f"\n4. Simulating database tampering on {b1['event_id']} (modifying paid amount from 42.00 to 53.00)...")
+    print(f"\n4. Simulating database tampering on {b1['event_id']} (modifying paid 42.00 -> 53.00)...")
     tamper_ledger_entry(b1['event_id'], {"trip_id": "TRIP-1001", "expected": 53.00, "paid": 53.00})
-    print("   Database row modified directly.")
+    print("   Database row modified directly (bypassing the hashing layer).")
 
     # Step 5: Verify chain after tampering
     print("\n5. Re-running chain verification...")
     v2 = verify_chain()
     print(f"   Chain status: Valid={v2['valid']}")
     if not v2['valid']:
-        print(f"   SUCCESSFULLY CAUGHT CORRUPTION: {v2['reason']}")
+        print(f"   \u2705 SUCCESSFULLY CAUGHT CORRUPTION: {v2.get('reason', 'Hash mismatch detected.')}")
+    else:
+        print("   Chain appears valid.")
+
     print("\n=== DEMONSTRATION COMPLETE ===")
 
 

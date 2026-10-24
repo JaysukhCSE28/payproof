@@ -29,6 +29,12 @@ class PolicyRetriever:
         trip_type = str(trip.get("trip_type", "local")).strip().lower()
         timestamp = str(trip.get("occurred_at", "")).strip()
 
+        # Guard: if trip vendor is specified but matches NO clause vendor → CANNOT_DETERMINE
+        if vendor:
+            known_vendors = {str(c.get("platform_vendor", "")).lower() for c in self.clauses if c.get("platform_vendor")}
+            if vendor not in known_vendors:
+                return None, None, f"Vendor '{vendor}' is not covered by any reviewed policy clause."
+
         # Step 1: Metadata candidates
         candidates = []
         for c in self.clauses:
@@ -48,9 +54,18 @@ class PolicyRetriever:
             candidates.append(c)
 
         if not candidates:
-            # Fallback to BM25 query
+            # Fallback to BM25 query — only accept if at least one query token matches corpus
             query = f"{vendor} {zone} {trip_type}"
+            query_tokens = set(query.lower().split())
             bm25_matches = self.index.search(query, top_k=1)
+
+            # Reject fallback match if no query token overlaps with matched clause text/tags
+            if bm25_matches:
+                clause_text = (bm25_matches[0].get("text", "") + " " + " ".join(bm25_matches[0].get("tags", []))).lower()
+                clause_tokens = set(clause_text.split())
+                if not query_tokens.intersection(clause_tokens):
+                    bm25_matches = []  # No meaningful overlap → treat as no match
+
             if not bm25_matches:
                 return None, None, f"No policy clause matched vendor='{vendor}', zone='{zone}', timestamp='{timestamp}'."
             matched_clause = bm25_matches[0]

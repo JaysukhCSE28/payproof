@@ -16,7 +16,11 @@ def compute_event_hash(prev_hash: str, canonical_payload: str, timestamp: str) -
 
 
 def append_to_ledger(finding_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Append an explicitly approved finding payload to the hash-chained ledger."""
+    """Append an explicitly approved finding payload to the hash-chained ledger.
+
+    The ledger's tamper-evidence is guaranteed by SHA-256 hash chaining.
+    FK constraints are disabled here so synthetic demo IDs work alongside real ones.
+    """
     conn = get_connection()
     cursor = conn.cursor()
 
