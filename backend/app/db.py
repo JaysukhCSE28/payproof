@@ -1,15 +1,127 @@
 """SQLite connection and schema initializer. DB file is created at runtime, not committed."""
 
 import sqlite3
-
+import os
+from pathlib import Path
 from backend.app.config import settings
 
 
 def get_connection() -> sqlite3.Connection:
-    # TODO: enable foreign keys and row factory
-    return sqlite3.connect(settings.db_path)
+    """Return an open SQLite connection with foreign keys and dict row factory."""
+    db_file = Path(settings.db_path)
+    db_file.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(db_file), check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON;")
+    return conn
 
 
 def init_schema(conn: sqlite3.Connection) -> None:
-    # TODO: create trips, findings, quarantine, and ledger tables
-    raise NotImplementedError("init_schema")
+    """Create trips, findings, quarantine, clauses, rule_cards, and ledger tables."""
+    cursor = conn.cursor()
+
+    # Trips table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS trips (
+        trip_id TEXT PRIMARY KEY,
+        employee_id TEXT,
+        occurred_at TEXT,
+        zone TEXT,
+        city TEXT,
+        vendor TEXT,
+        vehicle_type TEXT,
+        trip_type TEXT,
+        distance_km TEXT,
+        claimed_fare_inr TEXT,
+        claimed_toll_inr TEXT,
+        claimed_parking_inr TEXT,
+        claimed_wait_inr TEXT,
+        wait_minutes TEXT,
+        is_night INTEGER DEFAULT 0,
+        ocr_confidence REAL DEFAULT 1.0,
+        ocr_text TEXT,
+        notes TEXT,
+        planted_error TEXT,
+        raw_json TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    );
+    """)
+
+    # Policy Clauses table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS clauses (
+        clause_id TEXT PRIMARY KEY,
+        text TEXT NOT NULL,
+        platform_vendor TEXT,
+        zone TEXT,
+        effective_from TEXT,
+        effective_to TEXT,
+        source_reference TEXT,
+        tags TEXT
+    );
+    """)
+
+    # Reviewed Rule Cards table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS rule_cards (
+        rule_id TEXT PRIMARY KEY,
+        version INTEGER NOT NULL,
+        status TEXT NOT NULL,
+        clause_id TEXT,
+        zone TEXT,
+        trip_type TEXT,
+        effective_from TEXT,
+        effective_to TEXT,
+        formula_json TEXT NOT NULL
+    );
+    """)
+
+    # Findings table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS findings (
+        finding_id TEXT PRIMARY KEY,
+        trip_id TEXT NOT NULL,
+        verdict TEXT NOT NULL,
+        claimed_fare_inr TEXT,
+        computed_fare_inr TEXT,
+        verified_fare_inr TEXT,
+        engine_delta_inr TEXT,
+        tolerance_inr TEXT,
+        rule_id TEXT,
+        clause_id TEXT,
+        evidence_packet_id TEXT,
+        review_status TEXT DEFAULT 'pending',
+        reason TEXT,
+        breakdown_json TEXT,
+        execution_log_json TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (trip_id) REFERENCES trips(trip_id)
+    );
+    """)
+
+    # Quarantine table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS quarantine (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trip_id TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        ocr_confidence REAL,
+        payload_json TEXT NOT NULL,
+        quarantined_at TEXT DEFAULT (datetime('now'))
+    );
+    """)
+
+    # Tamper-Evident Ledger table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ledger (
+        event_id TEXT PRIMARY KEY,
+        finding_id TEXT,
+        payload_json TEXT NOT NULL,
+        prev_hash TEXT NOT NULL,
+        event_hash TEXT NOT NULL,
+        timestamp TEXT NOT NULL,
+        FOREIGN KEY (finding_id) REFERENCES findings(finding_id)
+    );
+    """)
+
+    conn.commit()

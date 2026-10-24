@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "rule_id": "RULE-SWIGGY-MAA-2026-V1",
+    "version": 1,
+    "status": "reviewed",
+    "clause_id": "CLAUSE-SWIGGY-MAA-2026",
+    "zone": "METRO",
+    "trip_type": "local",
+    "effective_from": "2026-01-01T00:00:00Z",
+    "effective_to": "2026-12-31T23:59:59Z",
+    "formula": {
+      "base_fare_inr": "25.00",
+      "per_km_inr": "8.00",
+      "night_multiplier": "1.25",
+      "airport_surcharge_inr": "0.00",
+      "wait_per_min_inr": "1.50",
+      "max_toll_inr": "100.00",
+      "max_parking_inr": "50.00",
+      "vehicle_multipliers": {
+        "hatchback": "1.00",
+        "sedan": "1.20",
+        "suv": "1.50"
+      }
+    }
+  },
+  {
+    "rule_id": "RULE-UBER-METRO-2026-V1",
+    "version": 1,
+    "status": "reviewed",
+    "clause_id": "CLAUSE-UBER-METRO-2026",
+    "zone": "METRO",
+    "trip_type": "airport",
+    "effective_from": "2026-01-01T00:00:00Z",
+    "effective_to": "2026-12-31T23:59:59Z",
+    "formula": {
+      "base_fare_inr": "50.00",
+      "per_km_inr": "12.00",
+      "night_multiplier": "1.00",
+      "airport_surcharge_inr": "100.00",
+      "wait_per_min_inr": "2.00",
+      "max_toll_inr": "150.00",
+      "max_parking_inr": "100.00",
+      "vehicle_multipliers": {
+        "hatchback": "1.00",
+        "sedan": "1.25",
+        "suv": "1.60"
+      }
+    }
+  },
+  {
+    "rule_id": "RULE-ZOMATO-TIER2-2026-V1",
+    "version": 1,
+    "status": "reviewed",
+    "clause_id": "CLAUSE-ZOMATO-TIER2-2026",
+    "zone": "TIER2",
+    "trip_type": "local",
+    "effective_from": "2026-01-01T00:00:00Z",
+    "effective_to": "2026-12-31T23:59:59Z",
+    "formula": {
+      "base_fare_inr": "20.00",
+      "per_km_inr": "7.00",
+      "night_multiplier": "1.00",
+      "airport_surcharge_inr": "0.00",
+      "wait_per_min_inr": "1.00",
+      "max_toll_inr": "50.00",
+      "max_parking_inr": "30.00",
+      "vehicle_multipliers": {
+        "hatchback": "1.00",
+        "sedan": "1.10",
+        "suv": "1.30"
+      }
+    }
+  }
+]

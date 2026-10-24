@@ -1,1 +1,5 @@
-trip_id,employee_id,occurred_at,zone,city,vendor,vehicle_type,claimed_fare_inr,distance_km,ocr_confidence,notes
+trip_id,employee_id,occurred_at,zone,city,vendor,vehicle_type,trip_type,distance_km,claimed_fare_inr,claimed_toll_inr,claimed_parking_inr,claimed_wait_inr,wait_minutes,is_night,ocr_confidence,ocr_text,notes,planted_error
+TRIP-EDGE-01,EMP-999,2026-05-10T12:00:00Z,METRO,Chennai,Swiggy,hatchback,local,5.0,64.00,0.00,0.00,0.00,0,False,0.95,Exact 1.00 boundary,Boundary test exact ₹1.00,exact_1_inr_boundary
+TRIP-EDGE-02,EMP-999,2026-05-10T12:00:00Z,METRO,Chennai,Swiggy,hatchback,local,5.0,63.99,0.00,0.00,0.00,0,False,0.95,Just over 1.00 boundary,Boundary test ₹1.01,just_over_1_inr_boundary
+TRIP-EDGE-03-DEGRADED,EMP-999,2026-05-10T12:00:00Z,METRO,Chennai,Swiggy,hatchback,local,5.0,50.00,0.00,0.00,0.00,0,False,0.55,BLURRY UNREADABLE RECEIPT,Degraded OCR case,low_ocr_confidence_quarantine
+TRIP-EDGE-04-UNKNOWN-PLATFORM,EMP-999,2026-05-10T12:00:00Z,METRO,Chennai,NonExistentVendor,hatchback,local,5.0,50.00,0.00,0.00,0.00,0,False,0.95,Unknown vendor test,No policy fixture available,missing_policy_fixture

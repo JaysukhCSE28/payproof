@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "clause_id": "CLAUSE-SWIGGY-MAA-2026",
+    "text": "Swiggy Chennai Metro Rate Card: Base pay is ₹25.00. Per km rate is ₹8.00. Night trips (23:00-06:00) receive 1.25x multiplier on core fare. Waiting time is ₹1.50 per minute. Toll capped at ₹100, parking capped at ₹50. Vehicles: hatchback 1.0x, sedan 1.2x, suv 1.5x.",
+    "platform_vendor": "Swiggy",
+    "zone": "METRO",
+    "trip_type": "local",
+    "effective_from": "2026-01-01T00:00:00Z",
+    "effective_to": "2026-12-31T23:59:59Z",
+    "source_reference": "Synthetic Demo Rate Card: Swiggy Chennai METRO v2.1 (Reviewed)",
+    "tags": ["swiggy", "chennai", "metro", "local", "night", "wait"]
+  },
+  {
+    "clause_id": "CLAUSE-UBER-METRO-2026",
+    "text": "Uber Metro Airport Policy: Base fare is ₹50.00. Per km rate is ₹12.00. Mandatory airport surcharge of ₹100.00 applied to all airport trips. Tolls reimbursed up to ₹150.00 maximum.",
+    "platform_vendor": "Uber",
+    "zone": "METRO",
+    "trip_type": "airport",
+    "effective_from": "2026-01-01T00:00:00Z",
+    "effective_to": "2026-12-31T23:59:59Z",
+    "source_reference": "Synthetic Demo Rate Card: Uber Metro Airport v1.0 (Reviewed)",
+    "tags": ["uber", "metro", "airport", "surcharge", "toll"]
+  },
+  {
+    "clause_id": "CLAUSE-ZOMATO-TIER2-2026",
+    "text": "Zomato Tier-2 Logistics Policy: Base fare is ₹20.00. Per km rate is ₹7.00 for local delivery orders. Waiting compensation is ₹1.00 per minute.",
+    "platform_vendor": "Zomato",
+    "zone": "TIER2",
+    "trip_type": "local",
+    "effective_from": "2026-01-01T00:00:00Z",
+    "effective_to": "2026-12-31T23:59:59Z",
+    "source_reference": "Synthetic Demo Rate Card: Zomato Tier-2 Regional v1.4 (Reviewed)",
+    "tags": ["zomato", "tier2", "regional", "local"]
+  }
+]
