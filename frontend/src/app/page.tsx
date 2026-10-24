@@ -2,20 +2,24 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { UploadPanel } from "../components/UploadPanel";
 import { VerdictBadge } from "../components/VerdictBadge";
 import { DriverMobileView } from "../components/DriverMobileView";
 import { DisputeModal } from "../components/DisputeModal";
+import { AntigravityCard } from "../components/AntigravityCard";
 import { listTrips, listFindings, runBatchAudit } from "../lib/api";
 import { Trip, Finding } from "../lib/types";
 
 export default function HomePage() {
+  const router = useRouter();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [findings, setFindings] = useState<Finding[]>([]);
   const [loading, setLoading] = useState(false);
   const [auditing, setAuditing] = useState(false);
   const [filter, setFilter] = useState<string>("ALL");
   const [viewMode, setViewMode] = useState<"matrix" | "mobile">("mobile");
+  const [matrixLayout, setMatrixLayout] = useState<"table" | "spatial">("spatial");
   const [selectedDisputeFinding, setSelectedDisputeFinding] = useState<Finding | null>(null);
 
   const loadData = async () => {
@@ -200,106 +204,173 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Matrix Filter & Table */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-              <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            {/* Matrix Filter & Header */}
+            <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden p-4 space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4">
                 <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                    Trip Audit Matrix ({filteredTrips.length})
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span>Trip Audit Matrix ({filteredTrips.length})</span>
+                    <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono">
+                      Antigravity Physics Active
+                    </span>
                   </h3>
-                  <p className="text-xs text-slate-400">Click any row to inspect calculations, citations, and execution logs.</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Cards feature real-time Euler spring damping, ambient float, and pointer proximity repulsion.
+                  </p>
                 </div>
 
-                <div className="flex gap-1.5 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-mono">
-                  {["ALL", "DISCREPANCY", "MATCH", "CANNOT_DETERMINE", "UNAUDITED"].map((tab) => (
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Layout Selector */}
+                  <div className="flex p-0.5 bg-slate-950 rounded-lg border border-slate-800 text-xs font-mono">
                     <button
-                      key={tab}
-                      onClick={() => setFilter(tab)}
-                      className={`px-3 py-1 rounded transition ${
-                        filter === tab ? "bg-slate-800 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+                      onClick={() => setMatrixLayout("spatial")}
+                      className={`px-2.5 py-1 rounded transition flex items-center gap-1.5 ${
+                        matrixLayout === "spatial"
+                          ? "bg-indigo-600 text-white font-bold"
+                          : "text-slate-400 hover:text-slate-200"
                       }`}
                     >
-                      {tab}
+                      <span>🌌</span>
+                      <span>Antigravity Spatial Grid</span>
                     </button>
-                  ))}
+                    <button
+                      onClick={() => setMatrixLayout("table")}
+                      className={`px-2.5 py-1 rounded transition flex items-center gap-1.5 ${
+                        matrixLayout === "table"
+                          ? "bg-slate-800 text-white font-bold"
+                          : "text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      <span>📊</span>
+                      <span>Classic Table</span>
+                    </button>
+                  </div>
+
+                  {/* Filter Tabs */}
+                  <div className="flex gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-mono">
+                    {["ALL", "DISCREPANCY", "MATCH", "CANNOT_DETERMINE", "UNAUDITED"].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setFilter(tab)}
+                        className={`px-2.5 py-1 rounded transition ${
+                          filter === tab ? "bg-slate-800 text-white font-bold" : "text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-950/80 text-slate-400 uppercase text-[11px] font-mono tracking-wider border-b border-slate-800">
-                    <tr>
-                      <th className="p-3.5">Trip ID</th>
-                      <th className="p-3.5">Platform</th>
-                      <th className="p-3.5">Distance</th>
-                      <th className="p-3.5">Claimed Paid</th>
-                      <th className="p-3.5">Computed Expected</th>
-                      <th className="p-3.5">Delta</th>
-                      <th className="p-3.5">Verdict</th>
-                      <th className="p-3.5">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono text-[12px]">
-                    {filteredTrips.length === 0 ? (
+              {/* Layout 1: Antigravity Spatial Grid */}
+              {matrixLayout === "spatial" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2 pb-4">
+                  {filteredTrips.length === 0 ? (
+                    <div className="col-span-full p-12 text-center text-slate-500 italic">
+                      No trips match the selected filter.
+                    </div>
+                  ) : (
+                    filteredTrips.map((t) => {
+                      const finding = findingMap.get(t.trip_id);
+                      return (
+                        <AntigravityCard
+                          key={t.trip_id}
+                          tripId={t.trip_id}
+                          vendor={t.vendor || "Swiggy"}
+                          claimedFare={t.claimed_fare_inr || "0.00"}
+                          computedFare={finding?.computed_fare_inr || "—"}
+                          delta={finding?.engine_delta_inr || "0.00"}
+                          verdict={
+                            (finding?.verdict as "DISCREPANCY" | "MATCH" | "CANNOT_DETERMINE") ||
+                            "CANNOT_DETERMINE"
+                          }
+                          clauseId={finding?.clause_id || "CLAUSE-METRO-2026"}
+                          onInspect={(id) => router.push(`/audit/${id}`)}
+                          onDispute={finding ? () => setSelectedDisputeFinding(finding) : undefined}
+                        />
+                      );
+                    })
+                  )}
+                </div>
+              ) : (
+                /* Layout 2: Classic Dense Data Table */
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-300">
+                    <thead className="bg-slate-950/80 text-slate-400 uppercase text-[11px] font-mono tracking-wider border-b border-slate-800">
                       <tr>
-                        <td colSpan={8} className="p-8 text-center text-slate-500 italic">
-                          No trips match the selected filter.
-                        </td>
+                        <th className="p-3.5">Trip ID</th>
+                        <th className="p-3.5">Platform</th>
+                        <th className="p-3.5">Distance</th>
+                        <th className="p-3.5">Claimed Paid</th>
+                        <th className="p-3.5">Computed Expected</th>
+                        <th className="p-3.5">Delta</th>
+                        <th className="p-3.5">Verdict</th>
+                        <th className="p-3.5">Actions</th>
                       </tr>
-                    ) : (
-                      filteredTrips.map((t) => {
-                        const finding = findingMap.get(t.trip_id);
-                        return (
-                          <tr key={t.trip_id} className="hover:bg-slate-800/40 transition">
-                            <td className="p-3.5 font-bold text-white">{t.trip_id}</td>
-                            <td className="p-3.5 text-slate-300 font-sans">{t.vendor || "Swiggy"} ({t.zone || "METRO"})</td>
-                            <td className="p-3.5">{t.distance_km} km</td>
-                            <td className="p-3.5">₹{t.claimed_fare_inr}</td>
-                            <td className="p-3.5 text-emerald-400 font-bold">
-                              {finding?.computed_fare_inr ? `₹${finding.computed_fare_inr}` : "—"}
-                            </td>
-                            <td className="p-3.5 font-bold">
-                              {finding?.engine_delta_inr ? (
-                                <span className={parseFloat(finding.engine_delta_inr) > 1 ? "text-rose-400" : "text-emerald-400"}>
-                                  ₹{parseFloat(finding.engine_delta_inr) > 0 ? "+" : ""}{finding.engine_delta_inr}
-                                </span>
-                              ) : (
-                                "—"
-                              )}
-                            </td>
-                            <td className="p-3.5">
-                              {finding ? (
-                                <VerdictBadge verdict={finding.verdict} />
-                              ) : (
-                                <span className="text-slate-500 text-xs">Pending Audit</span>
-                              )}
-                            </td>
-                            <td className="p-3.5">
-                              <div className="flex gap-2">
-                                <Link
-                                  href={`/audit/${t.trip_id}`}
-                                  className="inline-block px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition border border-slate-700 font-sans"
-                                >
-                                  Inspect →
-                                </Link>
-                                {finding?.verdict === "DISCREPANCY" && (
-                                  <button
-                                    onClick={() => setSelectedDisputeFinding(finding)}
-                                    className="px-2 py-1 rounded bg-rose-950/60 hover:bg-rose-900 border border-rose-800/60 text-rose-300 text-[11px] font-sans transition"
-                                    title="Generate 1-Click Support Grievance"
-                                  >
-                                    Dispute 📋
-                                  </button>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-mono text-[12px]">
+                      {filteredTrips.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="p-8 text-center text-slate-500 italic">
+                            No trips match the selected filter.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredTrips.map((t) => {
+                          const finding = findingMap.get(t.trip_id);
+                          return (
+                            <tr key={t.trip_id} className="hover:bg-slate-800/40 transition">
+                              <td className="p-3.5 font-bold text-white">{t.trip_id}</td>
+                              <td className="p-3.5 text-slate-300 font-sans">{t.vendor || "Swiggy"} ({t.zone || "METRO"})</td>
+                              <td className="p-3.5">{t.distance_km} km</td>
+                              <td className="p-3.5">₹{t.claimed_fare_inr}</td>
+                              <td className="p-3.5 text-emerald-400 font-bold">
+                                {finding?.computed_fare_inr ? `₹${finding.computed_fare_inr}` : "—"}
+                              </td>
+                              <td className="p-3.5 font-bold">
+                                {finding?.engine_delta_inr ? (
+                                  <span className={parseFloat(finding.engine_delta_inr) > 1 ? "text-rose-400" : "text-emerald-400"}>
+                                    ₹{parseFloat(finding.engine_delta_inr) > 0 ? "+" : ""}{finding.engine_delta_inr}
+                                  </span>
+                                ) : (
+                                  "—"
                                 )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                              </td>
+                              <td className="p-3.5">
+                                {finding ? (
+                                  <VerdictBadge verdict={finding.verdict} />
+                                ) : (
+                                  <span className="text-slate-500 text-xs">Pending Audit</span>
+                                )}
+                              </td>
+                              <td className="p-3.5">
+                                <div className="flex gap-2">
+                                  <Link
+                                    href={`/audit/${t.trip_id}`}
+                                    className="inline-block px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs transition border border-slate-700 font-sans"
+                                  >
+                                    Inspect →
+                                  </Link>
+                                  {finding?.verdict === "DISCREPANCY" && (
+                                    <button
+                                      onClick={() => setSelectedDisputeFinding(finding)}
+                                      className="px-2 py-1 rounded bg-rose-950/60 hover:bg-rose-900 border border-rose-800/60 text-rose-300 text-[11px] font-sans transition"
+                                      title="Generate 1-Click Support Grievance"
+                                    >
+                                      Dispute 📋
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
