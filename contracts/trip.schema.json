@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://payproof.local/contracts/trip.schema.json",
+  "title": "Trip",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["trip_id"],
+  "properties": {
+    "trip_id": { "type": "string" },
+    "employee_id": { "type": "string" },
+    "occurred_at": { "type": "string", "description": "ISO-8601 datetime" },
+    "zone": { "type": "string", "enum": ["METRO", "TIER2"] },
+    "city": { "type": "string" },
+    "vendor": { "type": "string" },
+    "vehicle_type": { "type": "string", "enum": ["hatchback", "sedan", "suv"] },
+    "trip_type": { "type": "string", "enum": ["local", "airport", "outstation"] },
+    "distance_km": { "type": "string", "description": "Decimal string" },
+    "claimed_fare_inr": { "type": "string", "description": "Total claimed, Decimal string" },
+    "claimed_toll_inr": { "type": "string" },
+    "claimed_parking_inr": { "type": "string" },
+    "claimed_wait_inr": { "type": "string" },
+    "wait_minutes": { "type": "string" },
+    "is_night": { "type": "boolean" },
+    "ocr_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "ocr_text": { "type": "string" },
+    "notes": { "type": "string" },
+    "planted_error": { "type": "string" }
+  }
+}

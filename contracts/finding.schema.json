@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://payproof.local/contracts/finding.schema.json",
+  "title": "Finding",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["finding_id", "trip_id", "verdict"],
+  "properties": {
+    "finding_id": { "type": "string" },
+    "trip_id": { "type": "string" },
+    "verdict": {
+      "type": "string",
+      "enum": ["MATCH", "DISCREPANCY", "CANNOT_DETERMINE"]
+    },
+    "claimed_fare_inr": { "type": ["string", "null"] },
+    "computed_fare_inr": { "type": ["string", "null"] },
+    "verified_fare_inr": { "type": ["string", "null"] },
+    "engine_delta_inr": { "type": ["string", "null"] },
+    "tolerance_inr": { "type": "string" },
+    "rule_id": { "type": ["string", "null"] },
+    "clause_id": { "type": ["string", "null"] },
+    "evidence_packet_id": { "type": ["string", "null"] },
+    "review_status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+    "breakdown": { "type": "object" },
+    "execution_log": { "type": "array" }
+  }
+}

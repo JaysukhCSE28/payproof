@@ -1,0 +1,1 @@
+trip_id,employee_id,occurred_at,zone,city,vendor,vehicle_type,claimed_fare_inr,distance_km,ocr_confidence,notes

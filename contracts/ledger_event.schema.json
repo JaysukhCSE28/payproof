@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://payproof.local/contracts/ledger_event.schema.json",
+  "title": "LedgerEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "payload", "prev_hash", "event_hash"],
+  "properties": {
+    "event_id": { "type": "string" },
+    "finding_id": { "type": "string" },
+    "payload": { "type": "object" },
+    "prev_hash": { "type": "string" },
+    "event_hash": { "type": "string" }
+  }
+}

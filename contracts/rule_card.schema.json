@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://payproof.local/contracts/rule_card.schema.json",
+  "title": "RuleCard",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["rule_id", "version", "status", "clause_id", "formula"],
+  "properties": {
+    "rule_id": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "status": { "type": "string", "enum": ["reviewed"] },
+    "clause_id": { "type": "string" },
+    "zone": { "type": "string" },
+    "trip_type": { "type": "string" },
+    "effective_from": { "type": "string" },
+    "effective_to": { "type": ["string", "null"] },
+    "formula": {
+      "type": "object",
+      "properties": {
+        "base_fare_inr": { "type": "string" },
+        "per_km_inr": { "type": "string" },
+        "night_multiplier": { "type": "string" },
+        "airport_surcharge_inr": { "type": "string" },
+        "wait_per_min_inr": { "type": "string" },
+        "max_toll_inr": { "type": "string" },
+        "max_parking_inr": { "type": "string" },
+        "vehicle_multipliers": { "type": "object" }
+      }
+    }
+  }
+}
